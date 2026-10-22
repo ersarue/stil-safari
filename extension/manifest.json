@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Stil — Quiet Browsing",
   "short_name": "Stil",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Block common advertising networks and hide cookie banners. Simple controls, quieter browsing, all on your device.",
   "browser_specific_settings": {
     "safari": { "strict_min_version": "18.6" }

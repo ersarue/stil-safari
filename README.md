@@ -9,15 +9,15 @@ A local-first Safari extension for macOS that blocks common advertising networks
 
 ## Download and install
 
-Stil is designed to install like a normal Mac app: download it, drag it to Applications, open it, and enable the extension in Safari. No Terminal, Node.js, Xcode, or developer settings are required.
+Stil is designed to install like a normal Mac app: download it, drag it to Applications, open it, and enable the extension in Safari. Signed builds need no Terminal, Node.js, Xcode, or Safari developer settings. The unsigned preview needs Safari's unsigned-extension switch; follow the preview notes below.
 
 > **Signed releases:** Stil publishes signed, notarized builds on the [Releases](https://github.com/ersarue/stil-safari/releases) page. If no release is listed yet, use [Build from source](#build-from-source) or choose **Watch → Custom → Releases** to be notified. macOS only trusts an app signed with an Apple Developer ID and notarized by Apple; an unsigned build would force users through Gatekeeper and Safari's developer settings. Maintainers: see [docs/RELEASING.md](docs/RELEASING.md).
 
 > **Testing before the signed release:** if the Releases page only shows an **Unsigned Preview**, follow the install notes in that release. It requires Gatekeeper and Safari developer settings and is not the one-click build.
 
-**Direct unsigned preview:** [Download Stil-0.3.1-unsigned.zip](https://github.com/ersarue/stil-safari/releases/download/v0.3.1-unsigned/Stil-0.3.1-unsigned.zip) · [installation notes](https://github.com/ersarue/stil-safari/releases/tag/v0.3.1-unsigned)
+**Direct unsigned preview:** [Download Stil-0.3.2-unsigned.zip](https://github.com/ersarue/stil-safari/releases/download/v0.3.2-unsigned/Stil-0.3.2-unsigned.zip) · [installation notes](https://github.com/ersarue/stil-safari/releases/tag/v0.3.2-unsigned)
 
-The preview is **ad-hoc signed** so Safari can register its extension, but it is not notarized by Apple. Move it to Applications and open it once before looking for it in Safari. If it is still missing, follow [Safari does not list Stil](#safari-does-not-list-stil-preview-builds).
+The preview is **ad-hoc signed** so Safari can register its extension, but it is not notarized by Apple. Move it to Applications and open it once, then restart Safari and enable **Safari → Settings → Developer → Allow unsigned extensions** before looking in Extensions. If it is still missing, follow [Safari does not list Stil](#safari-does-not-list-stil-preview-builds).
 
 When a release is available:
 
@@ -41,15 +41,17 @@ Compare the result with the checksum published on the release page.
 
 ### Safari does not list Stil (preview builds)
 
-Preview builds are ad-hoc signed, not notarized. Safari only registers the extension after the containing app has been launched successfully:
+Preview builds are ad-hoc signed, not notarized. Safari only registers the extension after the containing app has been launched successfully, and Safari ignores ad-hoc signed extensions until you allow them for the current Safari session:
 
 1. Move `Stil.app` to **Applications** and open it once. Keep it open for a few seconds, then quit Stil.
 2. Quit Safari completely (**⌘Q**) and reopen it.
 3. Enable **Safari → Settings → Advanced → Show features for web developers**.
-4. In Safari's **Develop** menu, enable **Allow Unsigned Extensions** (some versions: **Develop → Developer Settings**).
-5. Open **Safari → Settings → Extensions** and enable **Stil**. If it is still missing, quit and reopen Safari once more.
+4. Open the **Developer** tab in **Safari → Settings** and enable **Allow unsigned extensions**. In Safari 17 and later this is a separate **Developer** tab in Settings, not an item in the Develop menu. Safari resets this setting every time it quits.
+5. Open **Safari → Settings → Extensions** and enable **Stil**.
 
-If an older preview or an old development build is still installed, remove it and install the latest preview. The first preview was linker-signed only, so Safari could not register its extension. Safari can also reset **Allow Unsigned Extensions** after it restarts; re-enable the setting if Stil disappears.
+Enable **Allow unsigned extensions** *after* the final Safari restart, and do not quit Safari afterwards. If Stil is still missing, check that the Developer checkbox is still on, then quit and reopen Safari once more.
+
+If an older preview or an old development build is still installed, remove it and install the latest preview. The first preview was linker-signed only, so Safari could not register its extension. A local Xcode run can appear to work because Xcode leaves the developer setting enabled during that session; a standalone app needs the same switch after each Safari restart.
 
 ## Controls
 
@@ -71,7 +73,7 @@ Stil bundles YouTube-specific filters from a pinned upstream release (`2026.1021
 
 On supported top-level pages, scripts are registered in both Safari's MAIN and ISOLATED worlds at `document_start`. Supported hostnames are `youtube.com`, `www.youtube.com`, `m.youtube.com`, `music.youtube.com`, `tv.youtube.com`, `youtube-nocookie.com` and `www.youtube-nocookie.com`. Embeds receive the scripts after checking the parent site's pause setting, so their earliest inline data may already have been consumed. The existing ad skipper remains a fallback. Normal content URLs and playback speed are preserved.
 
-The popup shows **v0.3.1** and **“YouTube filters loaded · 2026.1021.1354”** when both components loaded. This status confirms the integration is active; it is not a count of ads blocked. If the status is missing, check Safari website access and reload the tab. If ads persist with that status, record the video URL and whether it is a pre-roll, mid-roll, Shorts ad or sponsored page placement.
+The popup shows **v0.3.2** and **“YouTube filters loaded · 2026.1021.1354”** when both components loaded. This status confirms the integration is active; it is not a count of ads blocked. If the status is missing, check Safari website access and reload the tab. If ads persist with that status, record the video URL and whether it is a pre-roll, mid-roll, Shorts ad or sponsored page placement.
 
 YouTube changes its ad delivery regularly. This pinned bundle needs developer updates as upstream evolves, and live Safari coverage must be verified. Tests check real extension execution order and response transformations, but do not establish that every live ad variant is blocked. The integration does not blanket-block `googlevideo.com`, which also carries normal videos.
 

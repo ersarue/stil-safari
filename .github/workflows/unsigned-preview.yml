@@ -97,15 +97,18 @@ jobs:
           3. Quit Safari completely (Command-Q) and reopen it.
           4. Open Safari -> Settings -> Advanced and enable
              "Show features for web developers".
-          5. In Safari's Develop menu, enable "Allow Unsigned Extensions".
-             On some versions: Develop -> Developer Settings -> Allow Unsigned Extensions.
+          5. Open the "Developer" tab in Safari -> Settings and enable
+             "Allow unsigned extensions". In Safari 17 and later this is a
+             Developer tab in Settings, not an item in the Develop menu.
           6. Open Safari -> Settings -> Extensions and enable Stil.
-             If Stil is not listed, quit and reopen Safari once more.
+             If Stil is not listed, check that the Developer checkbox is still
+             on, then quit and reopen Safari once more.
           7. Allow Stil on the sites you want filtered, then reload open tabs.
           8. Click the Stil toolbar icon.
 
-          Safari may reset "Allow Unsigned Extensions" when it restarts. If Stil
-          disappears, re-enable the setting and the extension.
+          Enable "Allow unsigned extensions" AFTER the last Safari restart, and
+          do not quit Safari afterwards. Safari resets this setting every time
+          it quits. If Stil disappears, re-enable the setting and the extension.
 
           Source and license: https://github.com/ersarue/stil-safari
           EOF
@@ -133,17 +136,21 @@ jobs:
                Security → Open Anyway**.
             3. Quit Safari completely (⌘Q) and reopen it.
             4. Safari → Settings → Advanced → enable **Show features for web developers**.
-            5. Safari's **Develop** menu → **Allow Unsigned Extensions**.
+            5. Open the **Developer** tab in **Safari → Settings** and enable
+               **Allow unsigned extensions**. In Safari 17 and later this is a
+               Developer tab in Settings, not an item in the Develop menu.
             6. Safari → Settings → Extensions → enable **Stil**. If Stil is not
-               listed, quit and reopen Safari once more.
+               listed, check that the Developer checkbox is still on, then quit
+               and reopen Safari once more.
             7. Allow Stil on your sites and reload open tabs.
 
-            **If you installed the first preview:** replace it with this build.
-            The first preview was not code-signed at all, so Safari could not see
-            its extension. This build is ad-hoc signed and registers on first launch.
+            **Enable Allow unsigned extensions after the final Safari restart**,
+            and do not quit Safari afterwards. Safari resets this setting every
+            time it quits.
 
-            Safari can reset **Allow Unsigned Extensions** when it restarts.
-            Re-enable it if Stil disappears.
+            **If you installed an earlier preview:** replace it with this build.
+            Safari ignores ad-hoc signed extensions until the Developer setting
+            is enabled for the current Safari session.
 
             SHA-256 is attached. Corresponding source is the tagged commit.
           files: |

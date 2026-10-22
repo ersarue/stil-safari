@@ -3,6 +3,17 @@
 Notable changes to Stil. Versions follow semantic versioning. Dates are the
 release dates of the tagged source.
 
+## [0.3.2] — 2026-10-22
+
+### Fixed
+
+- Preview install notes now point to Safari's **Settings → Developer** tab for
+  **Allow unsigned extensions**. Safari 17 and later moved this switch out of
+  the Develop menu, and Safari resets it every time it quits.
+- The first-run app screen and the failed Settings button now explain how to
+  enable unsigned extensions and why the switch must be enabled after the last
+  Safari restart.
+
 ## [0.3.1] — 2026-10-22
 
 ### Fixed

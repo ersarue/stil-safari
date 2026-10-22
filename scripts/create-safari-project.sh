@@ -62,6 +62,7 @@ VERSION="$(node -e 'console.log(require(process.argv[1]).version)' "$ROOT/packag
 # target to the newest macOS. Pin a practical minimum and keep the app version
 # aligned with package.json.
 perl -pi -e "s/MACOSX_DEPLOYMENT_TARGET = [0-9.]+;/MACOSX_DEPLOYMENT_TARGET = 13.6;/g; s/MARKETING_VERSION = [0-9.]+;/MARKETING_VERSION = $VERSION;/g" "$PROJECT"
+node "$ROOT/scripts/patch-app-ui.mjs" "$OUTPUT/Stil/Stil"
 
 echo "Minimum macOS: 13.6; app version: $VERSION"
 echo "Generated Xcode project with bundle identifier: $BUNDLE_ID"
