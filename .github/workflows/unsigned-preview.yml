@@ -1,0 +1,137 @@
+name: Unsigned preview
+
+on:
+  push:
+    tags:
+      - "v*-unsigned"
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    name: Build unsigned preview
+    runs-on: macos-latest
+    timeout-minutes: 35
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          npx playwright install chromium
+          npm test
+
+      - name: Resolve version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          BASE="${TAG#v}"
+          VERSION="${BASE%-unsigned}"
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::Could not resolve a version from tag $TAG."
+            exit 1
+          fi
+          VERSION="$VERSION" node -e '
+            const fs = require("fs");
+            const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            const manifest = JSON.parse(fs.readFileSync("extension/manifest.json", "utf8"));
+            if (pkg.version !== process.env.VERSION || manifest.version !== process.env.VERSION) {
+              console.error(`Tag version ${process.env.VERSION} does not match package ${pkg.version} / manifest ${manifest.version}`);
+              process.exit(1);
+            }
+          '
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Generate Xcode project
+        env:
+          CI: "true"
+          BUNDLE_ID: io.github.ersarue.Stil
+        run: bash scripts/create-safari-project.sh
+
+      - name: Archive unsigned universal app
+        run: |
+          xcodebuild \
+            -project build/safari/Stil/Stil.xcodeproj \
+            -scheme Stil \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -archivePath build/Stil.xcarchive \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            MACOSX_DEPLOYMENT_TARGET=13.6 \
+            CODE_SIGNING_ALLOWED=NO \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            archive
+
+      - name: Package unsigned ZIP
+        run: |
+          APP_PATH="build/Stil.xcarchive/Products/Applications/Stil.app"
+          STAGE="build/Stil-${VERSION}"
+          mkdir -p "$STAGE"
+          ditto "$APP_PATH" "$STAGE/Stil.app"
+          cat > "$STAGE/INSTALL.txt" <<EOF
+          Stil ${VERSION} — Unsigned Developer Preview
+
+          This build is NOT signed or notarized by Apple. It is for testing only.
+          The signed release is the recommended download for normal users.
+
+          1. Unzip this folder and move Stil.app to Applications.
+          2. Control-click Stil.app, choose Open, then click Open again.
+             If macOS does not show Open, open System Settings -> Privacy & Security
+             and choose Open Anyway.
+          3. Open Safari -> Settings -> Advanced and enable
+             "Show features for web developers".
+          4. In Safari's Develop menu, enable "Allow Unsigned Extensions".
+             On some versions: Develop -> Developer Settings -> Allow Unsigned Extensions.
+          5. Open Safari -> Settings -> Extensions and enable Stil.
+          6. Allow Stil on the sites you want filtered, then reload open tabs.
+          7. Click the Stil toolbar icon.
+
+          Safari may reset "Allow Unsigned Extensions" when it restarts. If Stil
+          disappears, re-enable the setting and the extension.
+
+          Source and license: https://github.com/ersarue/stil-safari
+          EOF
+          ditto -c -k --keepParent "$STAGE" "build/Stil-${VERSION}-unsigned.zip"
+          shasum -a 256 "build/Stil-${VERSION}-unsigned.zip" > "build/Stil-${VERSION}-unsigned.zip.sha256"
+          cat "build/Stil-${VERSION}-unsigned.zip.sha256"
+
+      - name: Publish unsigned preview
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Stil ${{ env.VERSION }} — Unsigned Preview
+          prerelease: true
+          body: |
+            **Unsigned developer preview — not the one-click build.**
+
+            This ZIP is not signed or notarized by Apple. macOS and Safari will
+            require extra steps. Use it for testing; the signed DMG is the
+            recommended download once it is available.
+
+            1. Unzip and move `Stil.app` to Applications.
+            2. Control-click `Stil.app` → **Open** → **Open**. If macOS does not
+               offer Open, use **System Settings → Privacy & Security → Open Anyway**.
+            3. Safari → Settings → Advanced → enable **Show features for web developers**.
+            4. Safari's **Develop** menu → **Allow Unsigned Extensions**.
+            5. Safari → Settings → Extensions → enable **Stil**.
+            6. Allow Stil on your sites and reload open tabs.
+
+            Safari can reset **Allow Unsigned Extensions** when it restarts.
+            Re-enable it if Stil disappears.
+
+            SHA-256 is attached. Corresponding source is the tagged commit.
+          files: |
+            build/Stil-${{ env.VERSION }}-unsigned.zip
+            build/Stil-${{ env.VERSION }}-unsigned.zip.sha256
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

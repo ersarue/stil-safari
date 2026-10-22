@@ -13,6 +13,8 @@ Stil is designed to install like a normal Mac app: download it, drag it to Appli
 
 > **Signed releases:** Stil publishes signed, notarized builds on the [Releases](https://github.com/ersarue/stil-safari/releases) page. If no release is listed yet, use [Build from source](#build-from-source) or choose **Watch → Custom → Releases** to be notified. macOS only trusts an app signed with an Apple Developer ID and notarized by Apple; an unsigned build would force users through Gatekeeper and Safari's developer settings. Maintainers: see [docs/RELEASING.md](docs/RELEASING.md).
 
+> **Testing before the signed release:** if the Releases page only shows an **Unsigned Preview**, follow the install notes in that release. It requires Gatekeeper and Safari developer settings and is not the one-click build.
+
 When a release is available:
 
 1. Open [Releases](https://github.com/ersarue/stil-safari/releases) and download the latest `Stil-x.y.z.dmg`.
