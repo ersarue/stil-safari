@@ -102,7 +102,7 @@ jobs:
           Source and license: https://github.com/ersarue/stil-safari
           EOF
           ditto -c -k --keepParent "$STAGE" "build/Stil-${VERSION}-unsigned.zip"
-          shasum -a 256 "build/Stil-${VERSION}-unsigned.zip" > "build/Stil-${VERSION}-unsigned.zip.sha256"
+          (cd build && shasum -a 256 "Stil-${VERSION}-unsigned.zip" > "Stil-${VERSION}-unsigned.zip.sha256")
           cat "build/Stil-${VERSION}-unsigned.zip.sha256"
 
       - name: Publish unsigned preview
@@ -133,5 +133,6 @@ jobs:
             build/Stil-${{ env.VERSION }}-unsigned.zip
             build/Stil-${{ env.VERSION }}-unsigned.zip.sha256
           fail_on_unmatched_files: true
+          overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -161,7 +161,7 @@ jobs:
 
       - name: Write checksum
         run: |
-          shasum -a 256 "build/Stil-${VERSION}.dmg" > "build/Stil-${VERSION}.dmg.sha256"
+          (cd build && shasum -a 256 "Stil-${VERSION}.dmg" > "Stil-${VERSION}.dmg.sha256")
           cat "build/Stil-${VERSION}.dmg.sha256"
 
       - name: Publish GitHub release
@@ -180,6 +180,7 @@ jobs:
             build/Stil-${{ env.VERSION }}.dmg
             build/Stil-${{ env.VERSION }}.dmg.sha256
           fail_on_unmatched_files: true
+          overwrite_files: true
           draft: false
           prerelease: false
         env:
