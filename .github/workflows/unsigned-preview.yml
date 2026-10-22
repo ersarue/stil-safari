@@ -56,7 +56,7 @@ jobs:
           BUNDLE_ID: io.github.ersarue.Stil
         run: bash scripts/create-safari-project.sh
 
-      - name: Archive unsigned universal app
+      - name: Archive universal app
         run: |
           xcodebuild \
             -project build/safari/Stil/Stil.xcodeproj \
@@ -72,7 +72,10 @@ jobs:
             CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             archive
 
-      - name: Package unsigned ZIP
+      - name: Ad-hoc sign for Safari registration
+        run: bash scripts/sign-adhoc.sh "build/Stil.xcarchive/Products/Applications/Stil.app"
+
+      - name: Package preview ZIP
         run: |
           APP_PATH="build/Stil.xcarchive/Products/Applications/Stil.app"
           STAGE="build/Stil-${VERSION}"
@@ -81,20 +84,25 @@ jobs:
           cat > "$STAGE/INSTALL.txt" <<EOF
           Stil ${VERSION} — Unsigned Developer Preview
 
-          This build is NOT signed or notarized by Apple. It is for testing only.
-          The signed release is the recommended download for normal users.
+          This build is ad-hoc signed so Safari can register the extension. It is
+          NOT notarized by Apple. The signed release is the recommended download
+          for normal users.
 
           1. Unzip this folder and move Stil.app to Applications.
           2. Control-click Stil.app, choose Open, then click Open again.
+             Keep Stil open for a few seconds so macOS registers the extension,
+             then quit Stil.
              If macOS does not show Open, open System Settings -> Privacy & Security
              and choose Open Anyway.
-          3. Open Safari -> Settings -> Advanced and enable
+          3. Quit Safari completely (Command-Q) and reopen it.
+          4. Open Safari -> Settings -> Advanced and enable
              "Show features for web developers".
-          4. In Safari's Develop menu, enable "Allow Unsigned Extensions".
+          5. In Safari's Develop menu, enable "Allow Unsigned Extensions".
              On some versions: Develop -> Developer Settings -> Allow Unsigned Extensions.
-          5. Open Safari -> Settings -> Extensions and enable Stil.
-          6. Allow Stil on the sites you want filtered, then reload open tabs.
-          7. Click the Stil toolbar icon.
+          6. Open Safari -> Settings -> Extensions and enable Stil.
+             If Stil is not listed, quit and reopen Safari once more.
+          7. Allow Stil on the sites you want filtered, then reload open tabs.
+          8. Click the Stil toolbar icon.
 
           Safari may reset "Allow Unsigned Extensions" when it restarts. If Stil
           disappears, re-enable the setting and the extension.
@@ -111,19 +119,28 @@ jobs:
           name: Stil ${{ env.VERSION }} — Unsigned Preview
           prerelease: true
           body: |
-            **Unsigned developer preview — not the one-click build.**
+            **Ad-hoc signed developer preview — not the one-click build.**
 
-            This ZIP is not signed or notarized by Apple. macOS and Safari will
-            require extra steps. Use it for testing; the signed DMG is the
-            recommended download once it is available.
+            This ZIP is ad-hoc signed so Safari can register the extension. It is
+            still not notarized by Apple, so macOS will show a Gatekeeper warning
+            on first launch. Use it for testing; the signed DMG is the recommended
+            download once it is available.
 
             1. Unzip and move `Stil.app` to Applications.
-            2. Control-click `Stil.app` → **Open** → **Open**. If macOS does not
-               offer Open, use **System Settings → Privacy & Security → Open Anyway**.
-            3. Safari → Settings → Advanced → enable **Show features for web developers**.
-            4. Safari's **Develop** menu → **Allow Unsigned Extensions**.
-            5. Safari → Settings → Extensions → enable **Stil**.
-            6. Allow Stil on your sites and reload open tabs.
+            2. Control-click `Stil.app` → **Open** → **Open**. Keep Stil open for
+               a few seconds so macOS registers the extension, then quit Stil. If
+               macOS does not offer Open, use **System Settings → Privacy &
+               Security → Open Anyway**.
+            3. Quit Safari completely (⌘Q) and reopen it.
+            4. Safari → Settings → Advanced → enable **Show features for web developers**.
+            5. Safari's **Develop** menu → **Allow Unsigned Extensions**.
+            6. Safari → Settings → Extensions → enable **Stil**. If Stil is not
+               listed, quit and reopen Safari once more.
+            7. Allow Stil on your sites and reload open tabs.
+
+            **If you installed the first preview:** replace it with this build.
+            The first preview was not code-signed at all, so Safari could not see
+            its extension. This build is ad-hoc signed and registers on first launch.
 
             Safari can reset **Allow Unsigned Extensions** when it restarts.
             Re-enable it if Stil disappears.

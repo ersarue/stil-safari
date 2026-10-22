@@ -1,6 +1,6 @@
 {
   "name": "stil-safari",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "A local-first Safari ad and cookie-banner blocker.",
   "license": "GPL-3.0-or-later",

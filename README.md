@@ -15,7 +15,9 @@ Stil is designed to install like a normal Mac app: download it, drag it to Appli
 
 > **Testing before the signed release:** if the Releases page only shows an **Unsigned Preview**, follow the install notes in that release. It requires Gatekeeper and Safari developer settings and is not the one-click build.
 
-**Direct unsigned preview:** [Download Stil-0.3.0-unsigned.zip](https://github.com/ersarue/stil-safari/releases/download/v0.3.0-unsigned/Stil-0.3.0-unsigned.zip) · [installation notes](https://github.com/ersarue/stil-safari/releases/tag/v0.3.0-unsigned)
+**Direct unsigned preview:** [Download Stil-0.3.1-unsigned.zip](https://github.com/ersarue/stil-safari/releases/download/v0.3.1-unsigned/Stil-0.3.1-unsigned.zip) · [installation notes](https://github.com/ersarue/stil-safari/releases/tag/v0.3.1-unsigned)
+
+The preview is **ad-hoc signed** so Safari can register its extension, but it is not notarized by Apple. Move it to Applications and open it once before looking for it in Safari. If it is still missing, follow [Safari does not list Stil](#safari-does-not-list-stil-preview-builds).
 
 When a release is available:
 
@@ -31,10 +33,23 @@ When a release is available:
 Each release includes a SHA-256 checksum. To verify a download, run this in Terminal (optional):
 
 ```sh
-shasum -a 256 ~/Downloads/Stil-*.dmg
+shasum -a 256 ~/Downloads/Stil-*.dmg   # signed release
+shasum -a 256 ~/Downloads/Stil-*.zip   # preview build
 ```
 
 Compare the result with the checksum published on the release page.
+
+### Safari does not list Stil (preview builds)
+
+Preview builds are ad-hoc signed, not notarized. Safari only registers the extension after the containing app has been launched successfully:
+
+1. Move `Stil.app` to **Applications** and open it once. Keep it open for a few seconds, then quit Stil.
+2. Quit Safari completely (**⌘Q**) and reopen it.
+3. Enable **Safari → Settings → Advanced → Show features for web developers**.
+4. In Safari's **Develop** menu, enable **Allow Unsigned Extensions** (some versions: **Develop → Developer Settings**).
+5. Open **Safari → Settings → Extensions** and enable **Stil**. If it is still missing, quit and reopen Safari once more.
+
+If an older preview or an old development build is still installed, remove it and install the latest preview. The first preview was linker-signed only, so Safari could not register its extension. Safari can also reset **Allow Unsigned Extensions** after it restarts; re-enable the setting if Stil disappears.
 
 ## Controls
 
@@ -56,7 +71,7 @@ Stil bundles YouTube-specific filters from a pinned upstream release (`2026.1021
 
 On supported top-level pages, scripts are registered in both Safari's MAIN and ISOLATED worlds at `document_start`. Supported hostnames are `youtube.com`, `www.youtube.com`, `m.youtube.com`, `music.youtube.com`, `tv.youtube.com`, `youtube-nocookie.com` and `www.youtube-nocookie.com`. Embeds receive the scripts after checking the parent site's pause setting, so their earliest inline data may already have been consumed. The existing ad skipper remains a fallback. Normal content URLs and playback speed are preserved.
 
-The popup shows **v0.3.0** and **“YouTube filters loaded · 2026.1021.1354”** when both components loaded. This status confirms the integration is active; it is not a count of ads blocked. If the status is missing, check Safari website access and reload the tab. If ads persist with that status, record the video URL and whether it is a pre-roll, mid-roll, Shorts ad or sponsored page placement.
+The popup shows **v0.3.1** and **“YouTube filters loaded · 2026.1021.1354”** when both components loaded. This status confirms the integration is active; it is not a count of ads blocked. If the status is missing, check Safari website access and reload the tab. If ads persist with that status, record the video URL and whether it is a pre-roll, mid-roll, Shorts ad or sponsored page placement.
 
 YouTube changes its ad delivery regularly. This pinned bundle needs developer updates as upstream evolves, and live Safari coverage must be verified. Tests check real extension execution order and response transformations, but do not establish that every live ad variant is blocked. The integration does not blanket-block `googlevideo.com`, which also carries normal videos.
 

@@ -56,16 +56,25 @@ function lineDistance(x, y, a, b) {
   return Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy);
 }
 
-const arch = [];
-for (let i = 0; i <= 30; i++) {
-  const t = i / 30, s = 1 - t;
-  arch.push([
-    s ** 3 * .33 + 3 * s * s * t * .33 + 3 * s * t * t * .65 + t ** 3 * .65,
-    s ** 3 * .55 + 3 * s * s * t * .36 + 3 * s * t * t * .36 + t ** 3 * .55,
-  ]);
+function cubicPoint([p0, p1, p2, p3], t) {
+  const mt = 1 - t;
+  return [
+    mt ** 3 * p0[0] + 3 * mt * mt * t * p1[0] + 3 * mt * t * t * p2[0] + t ** 3 * p3[0],
+    mt ** 3 * p0[1] + 3 * mt * mt * t * p1[1] + 3 * mt * t * t * p2[1] + t ** 3 * p3[1],
+  ];
 }
-const strokes = [ [[.33, .27], [.33, .73]], [[.65, .55], [.65, .73]],
-  ...arch.slice(1).map((point, i) => [arch[i], point]) ];
+
+// Stil's mark is a lowercase "s" with a single dot, matching the popup
+// wordmark. The previous artwork was inherited from Hush and must not ship.
+const sCurves = [
+  [[.66, .345], [.67, .255], [.39, .235], [.36, .35]],
+  [[.36, .35], [.34, .455], [.65, .50], [.65, .62]],
+  [[.65, .62], [.63, .735], [.35, .745], [.345, .645]],
+];
+const strokes = sCurves.flatMap(curve => {
+  const points = Array.from({ length: 21 }, (_, index) => cubicPoint(curve, index / 20));
+  return points.slice(1).map((point, index) => [points[index], point]);
+});
 
 function icon(size) {
   const raw = Buffer.alloc((size * 4 + 1) * size);
@@ -79,8 +88,8 @@ function icon(size) {
         const qx = Math.max(.22 - x, 0, x - .78);
         const qy = Math.max(.22 - y, 0, y - .78);
         if (Math.hypot(qx, qy) > .2) continue;
-        const dot = Math.hypot(x - .79, y - .73) < .05;
-        const mark = strokes.some(([a, b]) => lineDistance(x, y, a, b) < .052);
+        const dot = Math.hypot(x - .69, y - .705) < .045;
+        const mark = strokes.some(([a, b]) => lineDistance(x, y, a, b) < .058);
         const color = dot ? [201, 222, 153] : mark ? [248, 250, 239] : [40, 102, 76];
         color.forEach((value, channel) => { sum[channel] += value; });
         sum[3] += 255;

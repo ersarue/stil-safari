@@ -11,6 +11,7 @@ const release = "2026.1021.1354";
 const digest = "6c80d19c128cd3f6b5d1ff2ef151fa0ff31565da3c5ef6841443381702b92838";
 const url = `https://github.com/uBlockOrigin/uBOL-home/releases/download/${release}/uBOLite_${release}.safari.zip`;
 const root = fileURLToPath(new URL("../", import.meta.url));
+const appVersion = JSON.parse(await readFile(join(root, "package.json"), "utf8")).version;
 const vendor = join(root, "extension/vendor/youtube");
 const hosts = ["youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com", "tv.youtube.com", "youtube-nocookie.com", "www.youtube-nocookie.com"];
 const tempRoot = join(tmpdir(), "opencode");
@@ -93,7 +94,7 @@ announce();
     const bundle = `${header}(() => {
 const host = location.hostname.toLowerCase().replace(/\\.$/, "");
 if (!${JSON.stringify(hosts)}.includes(host) || globalThis.${marker}) return;
-const state = globalThis.${marker} = { release: ${JSON.stringify(release)}, version: "0.3.0", ready: false, attempted: 0, failed: 0, phase: document.readyState };
+const state = globalThis.${marker} = { release: ${JSON.stringify(release)}, version: ${JSON.stringify(appVersion)}, ready: false, attempted: 0, failed: 0, phase: document.readyState };
 ${begin}
 ${runner}
 ${end}

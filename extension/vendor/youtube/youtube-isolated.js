@@ -5,7 +5,7 @@
 (() => {
 const host = location.hostname.toLowerCase().replace(/\.$/, "");
 if (!["youtube.com","www.youtube.com","m.youtube.com","music.youtube.com","tv.youtube.com","youtube-nocookie.com","www.youtube-nocookie.com"].includes(host) || globalThis.__stilYoutubeIsolated) return;
-const state = globalThis.__stilYoutubeIsolated = { release: "2026.1021.1354", version: "0.3.0", ready: false, attempted: 0, failed: 0, phase: document.readyState };
+const state = globalThis.__stilYoutubeIsolated = { release: "2026.1021.1354", version: "0.3.1", ready: false, attempted: 0, failed: 0, phase: document.readyState };
 /*******************************************************************************
 
     uBlock Origin Lite - a comprehensive, MV3-compliant content blocker

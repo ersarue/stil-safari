@@ -3,6 +3,21 @@
 Notable changes to Stil. Versions follow semantic versioning. Dates are the
 release dates of the tagged source.
 
+## [0.3.1] — 2026-10-22
+
+### Fixed
+
+- Preview builds are ad-hoc signed with the app and extension entitlements, so
+  Safari and `pluginkit` register the extension. The first preview was
+  linker-signed only and never appeared in Safari.
+- Replaced the inherited Hush "h" artwork with Stil's "s·" mark in the app icon
+  and toolbar icons.
+
+### Changed
+
+- Preview install notes now require launching Stil once and restarting Safari
+  before enabling the extension.
+
 ## [0.3.0] — 2026-10-22
 
 ### Added
