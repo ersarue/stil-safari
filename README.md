@@ -11,7 +11,7 @@ A local-first Safari extension for macOS that blocks common advertising networks
 
 Stil is designed to install like a normal Mac app: download it, drag it to Applications, open it, and enable the extension in Safari. No Terminal, Node.js, Xcode, or developer settings are required.
 
-> **Release status:** the first signed and notarized build is not published yet. macOS only trusts an app signed with an Apple Developer ID and notarized by Apple; an unsigned build would force users through Gatekeeper and Safari's developer settings. The release workflow is ready in [docs/RELEASING.md](docs/RELEASING.md). Until the first release appears, use [Build from source](#build-from-source). Choose **Watch → Custom → Releases** on GitHub to be notified.
+> **Signed releases:** Stil publishes signed, notarized builds on the [Releases](https://github.com/ersarue/stil-safari/releases) page. If no release is listed yet, use [Build from source](#build-from-source) or choose **Watch → Custom → Releases** to be notified. macOS only trusts an app signed with an Apple Developer ID and notarized by Apple; an unsigned build would force users through Gatekeeper and Safari's developer settings. Maintainers: see [docs/RELEASING.md](docs/RELEASING.md).
 
 When a release is available:
 
