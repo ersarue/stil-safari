@@ -15,6 +15,8 @@ Stil is designed to install like a normal Mac app: download it, drag it to Appli
 
 > **Testing before the signed release:** if the Releases page only shows an **Unsigned Preview**, follow the install notes in that release. It requires Gatekeeper and Safari developer settings and is not the one-click build.
 
+**Direct unsigned preview:** [Download Stil-0.3.0-unsigned.zip](https://github.com/ersarue/stil-safari/releases/download/v0.3.0-unsigned/Stil-0.3.0-unsigned.zip) · [installation notes](https://github.com/ersarue/stil-safari/releases/tag/v0.3.0-unsigned)
+
 When a release is available:
 
 1. Open [Releases](https://github.com/ersarue/stil-safari/releases) and download the latest `Stil-x.y.z.dmg`.
