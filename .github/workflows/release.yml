@@ -1,0 +1,185 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Signed and notarized release
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      BUNDLE_ID: io.github.ersarue.Stil
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          npx playwright install chromium
+          npm test
+
+      - name: Verify tag matches app version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="$VERSION" node -e '
+            const fs = require("fs");
+            const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            const manifest = JSON.parse(fs.readFileSync("extension/manifest.json", "utf8"));
+            if (pkg.version !== process.env.VERSION || manifest.version !== process.env.VERSION) {
+              console.error(`Tag v${process.env.VERSION} does not match package ${pkg.version} / manifest ${manifest.version}`);
+              process.exit(1);
+            }
+          '
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Require signing secrets
+        env:
+          P12: ${{ secrets.DEVELOPER_ID_APPLICATION_P12 }}
+          P12_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_P12_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          missing=0
+          for name in P12 P12_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Missing signing secret: $name. See docs/RELEASING.md."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Import Developer ID certificate
+        env:
+          P12_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_P12 }}
+          P12_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_P12_PASSWORD }}
+        run: |
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 24)"
+          echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD" >> "$GITHUB_ENV"
+          printf '%s' "$P12_BASE64" | tr -d '\n' | openssl base64 -d -A -out "$RUNNER_TEMP/certificate.p12"
+          chmod 600 "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security import "$RUNNER_TEMP/certificate.p12" -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          security list-keychains -d user -s build.keychain
+          security default-keychain -s build.keychain
+          security find-identity -v -p codesigning build.keychain
+          IDENTITY="$(security find-identity -v -p codesigning build.keychain | sed -n 's/.*"\(Developer ID Application:.*\)"/\1/p' | head -1)"
+          if [[ -z "$IDENTITY" ]]; then
+            echo "::error::No Developer ID Application identity found after importing the certificate."
+            exit 1
+          fi
+          echo "DEVELOPER_ID_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+
+      - name: Generate Xcode project
+        env:
+          CI: "true"
+        run: bash scripts/create-safari-project.sh
+
+      - name: Archive signed universal app
+        run: |
+          xcodebuild \
+            -project build/safari/Stil/Stil.xcodeproj \
+            -scheme Stil \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -archivePath build/Stil.xcarchive \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
+            MACOSX_DEPLOYMENT_TARGET=13.6 \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="$DEVELOPER_ID_IDENTITY" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            ENABLE_HARDENED_RUNTIME=YES \
+            OTHER_CODE_SIGN_FLAGS="--timestamp" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            archive
+
+      - name: Verify signatures
+        run: |
+          APP_PATH="build/Stil.xcarchive/Products/Applications/Stil.app"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          find "$APP_PATH/Contents/PlugIns" -name '*.appex' -print0 |
+            while IFS= read -r -d '' extension; do
+              codesign --verify --deep --strict --verbose=2 "$extension"
+            done
+          codesign -dv --verbose=4 "$APP_PATH" 2>&1 | sed -n '1,20p'
+
+      - name: Create and sign DMG
+        run: |
+          APP_PATH="build/Stil.xcarchive/Products/Applications/Stil.app"
+          mkdir -p build/dmg
+          ditto "$APP_PATH" "build/dmg/Stil.app"
+          ln -s /Applications "build/dmg/Applications"
+          hdiutil create -volname "Stil" -srcfolder build/dmg -ov -format UDZO "build/Stil-${VERSION}.dmg"
+          codesign --force --timestamp --sign "$DEVELOPER_ID_IDENTITY" "build/Stil-${VERSION}.dmg"
+
+      - name: Notarize and staple DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          RESULT="$(xcrun notarytool submit "build/Stil-${VERSION}.dmg" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait \
+            --output-format json)"
+          printf '%s\n' "$RESULT"
+          STATUS="$(printf '%s' "$RESULT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).status))')"
+          if [[ "$STATUS" != "Accepted" ]]; then
+            echo "::error::Notarization failed with status: $STATUS"
+            exit 1
+          fi
+          xcrun stapler staple "build/Stil-${VERSION}.dmg"
+          xcrun stapler validate "build/Stil-${VERSION}.dmg"
+          spctl --assess --type open --context context:primary-signature --verbose=2 "build/Stil-${VERSION}.dmg"
+
+      - name: Write checksum
+        run: |
+          shasum -a 256 "build/Stil-${VERSION}.dmg" > "build/Stil-${VERSION}.dmg.sha256"
+          cat "build/Stil-${VERSION}.dmg.sha256"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Stil ${{ env.VERSION }}
+          body: |
+            Signed and notarized universal macOS build for Apple silicon and Intel.
+
+            **Requirements:** macOS with Safari 18.6 or newer.
+
+            Drag **Stil** to Applications, open it, then enable the extension in **Safari → Settings → Extensions**. No Terminal, Node.js, Xcode, or developer settings are required.
+
+            Verify the download with the attached `.sha256` file. Corresponding source is available at the tagged commit and in the automatically generated source archives.
+          files: |
+            build/Stil-${{ env.VERSION }}.dmg
+            build/Stil-${{ env.VERSION }}.dmg.sha256
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

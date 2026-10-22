@@ -13,8 +13,8 @@ Requirements: macOS, Node.js 20+, Safari 18.6+ for manual testing, and the full
 Xcode app for native builds.
 
 ```sh
-git clone https://github.com/YOUR-ACCOUNT/stil.git
-cd stil
+git clone https://github.com/ersarue/stil-safari.git
+cd stil-safari
 npm ci
 npx playwright install chromium
 npm test

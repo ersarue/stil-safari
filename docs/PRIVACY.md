@@ -66,4 +66,4 @@ app's release notes.
 ## Contact
 
 Questions about this policy: open an issue at
-<https://github.com/YOUR-ACCOUNT/stil/issues>.
+<https://github.com/ersarue/stil-safari/issues>.

@@ -3,6 +3,18 @@
   "version": "0.3.0",
   "private": true,
   "description": "A local-first Safari ad and cookie-banner blocker.",
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ersarue/stil-safari.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ersarue/stil-safari/issues"
+  },
+  "homepage": "https://github.com/ersarue/stil-safari#readme",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "update:youtube": "node scripts/update-youtube.mjs",

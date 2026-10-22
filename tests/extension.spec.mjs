@@ -272,6 +272,9 @@ test("popup controls work with keyboard input and show reload guidance", async (
   const popup = await stil.context.newPage();
   await site.bringToFront();
   await popup.goto(`chrome-extension://${stil.extensionId}/popup/popup.html`);
+  await popup.setViewportSize({ width: 380, height: 620 });
+  const manifestVersion = await popup.evaluate(() => chrome.runtime.getManifest().version);
+  await expect(popup.locator("#version")).toHaveText(`v${manifestVersion}`);
   await expect(popup.locator("#hostname")).toHaveText("news.stil.test");
   await expect(popup.getByRole("switch", { name: "Enable Stil", exact: true })).toBeEnabled();
   await popup.screenshot({ path: testInfo.outputPath("popup-light.png"), fullPage: true });

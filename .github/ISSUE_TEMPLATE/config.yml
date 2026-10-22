@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security report
-    url: https://github.com/YOUR-ACCOUNT/stil/security/advisories/new
+    url: https://github.com/ersarue/stil-safari/security/advisories/new
     about: Report vulnerabilities privately. Do not open a public issue.
   - name: Build and installation help
-    url: https://github.com/YOUR-ACCOUNT/stil/blob/main/README.md
+    url: https://github.com/ersarue/stil-safari/blob/main/README.md
     about: Read the README before filing an installation question.

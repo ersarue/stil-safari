@@ -90,6 +90,7 @@
   async function initialize() {
     try {
       if (!api?.runtime) throw new Error("Install Stil as an extension to use these controls.");
+      $("version").textContent = `v${api.runtime.getManifest().version}`;
       const [result, tabs] = await Promise.all([
         request({ type: "GET_STATE" }),
         api.tabs.query({ active: true, currentWindow: true }),

@@ -21,6 +21,10 @@ release dates of the tagged source.
 ### Changed
 
 - Released as **Stil** for the first public release.
+- Added a signed and notarized release workflow plus user-facing install
+  documentation.
+- Native app deployment target is macOS 13.6, with universal Apple silicon and
+  Intel builds.
 - Minimum supported Safari version is now 18.6.
 - Stil is distributed under GPL-3.0-or-later because it incorporates
   third-party GPL filter code.

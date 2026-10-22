@@ -27,9 +27,9 @@ if [[ -e "$OUTPUT" ]]; then
   exit 1
 fi
 
-BUNDLE_ID="${BUNDLE_ID:-com.local.Stil}"
+BUNDLE_ID="${BUNDLE_ID:-io.github.ersarue.Stil}"
 if [[ "$BUNDLE_ID" != *.* ]]; then
-  echo "BUNDLE_ID must be a reverse-DNS identifier, for example com.example.stil."
+  echo "BUNDLE_ID must be a reverse-DNS identifier, for example io.github.ersarue.Stil."
   exit 1
 fi
 
@@ -56,5 +56,13 @@ fi
 mkdir -p "$ROOT/build"
 xcrun safari-web-extension-converter "${converter_args[@]}"
 
+PROJECT="$OUTPUT/Stil/Stil.xcodeproj/project.pbxproj"
+VERSION="$(node -e 'console.log(require(process.argv[1]).version)' "$ROOT/package.json")"
+# The converter's template follows the installed SDK and can default the app
+# target to the newest macOS. Pin a practical minimum and keep the app version
+# aligned with package.json.
+perl -pi -e "s/MACOSX_DEPLOYMENT_TARGET = [0-9.]+;/MACOSX_DEPLOYMENT_TARGET = 13.6;/g; s/MARKETING_VERSION = [0-9.]+;/MARKETING_VERSION = $VERSION;/g" "$PROJECT"
+
+echo "Minimum macOS: 13.6; app version: $VERSION"
 echo "Generated Xcode project with bundle identifier: $BUNDLE_ID"
 echo "Open it with: open \"$OUTPUT/Stil/Stil.xcodeproj\""

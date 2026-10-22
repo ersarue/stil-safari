@@ -1,38 +1,36 @@
 # Stil — Quiet Browsing
 
-A Safari Web Extension for macOS that blocks common advertising networks and hides cookie notices. Includes a toolbar popup, global controls and a per-website pause list. All settings stay on your Mac; there are no accounts, analytics or remote services.
+A local-first Safari extension for macOS that blocks common advertising networks and hides cookie notices. No accounts, analytics, or remote services.
 
-## Install in Safari
+[![CI](https://github.com/ersarue/stil-safari/actions/workflows/ci.yml/badge.svg)](https://github.com/ersarue/stil-safari/actions/workflows/ci.yml)
+[![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](LICENSE)
 
-**Requirements:** macOS, Safari 18.6 or newer, Node.js 20+ and the full **Xcode** app from the Mac App Store. Apple's Command Line Tools alone cannot package a Safari extension.
+<p align="center"><img src="docs/popup.png" alt="Stil toolbar popup with ad blocking and cookie-banner controls" width="380"></p>
 
-1. Install Xcode and open it once to complete setup.
-2. In Terminal, from this folder:
+## Download and install
 
-   ```sh
-   npm ci
-   npm run safari
-   ```
+Stil is designed to install like a normal Mac app: download it, drag it to Applications, open it, and enable the extension in Safari. No Terminal, Node.js, Xcode, or developer settings are required.
 
-   This builds the bundled rules/icons, then runs Apple's Safari Web Extension converter. It creates the native containing app and extension project under `build/safari` and opens Xcode. No hand-written Xcode project is needed.
+> **Release status:** the first signed and notarized build is not published yet. macOS only trusts an app signed with an Apple Developer ID and notarized by Apple; an unsigned build would force users through Gatekeeper and Safari's developer settings. The release workflow is ready in [docs/RELEASING.md](docs/RELEASING.md). Until the first release appears, use [Build from source](#build-from-source). Choose **Watch → Custom → Releases** on GitHub to be notified.
 
-3. In Xcode, select the **Stil macOS app** scheme and **My Mac**. In **Signing & Capabilities**, choose your development team for both the app and extension targets. Use a unique bundle identifier if Xcode asks for one. Run the app with **⌘R**.
-4. For local development, enable Safari's **Allow Unsigned Extensions** setting. Enable web-developer features in **Safari → Settings → Advanced**, then find the unsigned-extensions option under **Develop** (or **Develop → Developer Settings**, depending on Safari version). Safari may reset this after restarting.
-5. In **Safari → Settings → Extensions**, enable **Stil** and allow it on the websites you want to filter. Choose access to all websites for automatic filtering everywhere.
-6. Reload existing tabs and click the Stil toolbar icon.
+When a release is available:
 
-Safari requires the native app wrapper; selecting the `extension` directory directly in Safari does not install it. For a signed build, choose your development team for both targets in Xcode.
+1. Open [Releases](https://github.com/ersarue/stil-safari/releases) and download the latest `Stil-x.y.z.dmg`.
+2. Open the DMG and drag **Stil** into **Applications**.
+3. Open **Stil** once. macOS checks the notarized app; no right-click bypass is needed.
+4. In **Safari → Settings → Extensions**, enable **Stil**.
+5. Allow Stil on the sites you want filtered, or choose **All Websites** for automatic filtering everywhere.
+6. Reload open tabs and click the Stil toolbar icon.
 
-To generate the project with identifiers you control, run `BUNDLE_ID=com.example.stil npm run safari` (the script normalizes the final component to `com.example.Stil`).
+**Requirements:** macOS with Safari 18.6 or newer.
 
-### Xcode: embedded binary identifier error
+Each release includes a SHA-256 checksum. To verify a download, run this in Terminal (optional):
 
-If Xcode reports “Embedded binary's bundle identifier is not prefixed with the parent app's bundle identifier”, check **Signing & Capabilities → Bundle Identifier** for both targets. The extension identifier must begin with the app identifier followed by a dot, with identical capitalization. For example:
+```sh
+shasum -a 256 ~/Downloads/Stil-*.dmg
+```
 
-- **Stil:** `com.local.Stil`
-- **Stil Extension:** `com.local.Stil.Extension`
-
-Keep the `extensionBundleIdentifier` constant in the generated app's `Stil/ViewController.swift` equal to the extension identifier as well. Apply identifier changes to both Debug and Release configurations. Then choose **Product → Clean Build Folder** (⇧⌘K) and run again (⌘R).
+Compare the result with the checksum published on the release page.
 
 ## Controls
 
@@ -54,16 +52,51 @@ Stil bundles YouTube-specific filters from a pinned upstream release (`2026.1021
 
 On supported top-level pages, scripts are registered in both Safari's MAIN and ISOLATED worlds at `document_start`. Supported hostnames are `youtube.com`, `www.youtube.com`, `m.youtube.com`, `music.youtube.com`, `tv.youtube.com`, `youtube-nocookie.com` and `www.youtube-nocookie.com`. Embeds receive the scripts after checking the parent site's pause setting, so their earliest inline data may already have been consumed. The existing ad skipper remains a fallback. Normal content URLs and playback speed are preserved.
 
-**Update an existing Safari install:** rebuild/run the existing Xcode project with **⌘R**, allow Stil's updated permissions if Safari asks, and fully reload the YouTube tab. The popup should show **v0.3** and **“YouTube filters loaded · 2026.1021.1354”**. This status confirms both components loaded; it is not a count of ads blocked. If the status is missing, check Safari website access and reload the tab. If ads persist with that status, record the video URL and whether it is a pre-roll, mid-roll, Shorts ad or sponsored page placement.
+The popup shows **v0.3.0** and **“YouTube filters loaded · 2026.1021.1354”** when both components loaded. This status confirms the integration is active; it is not a count of ads blocked. If the status is missing, check Safari website access and reload the tab. If ads persist with that status, record the video URL and whether it is a pre-roll, mid-roll, Shorts ad or sponsored page placement.
 
 YouTube changes its ad delivery regularly. This pinned bundle needs developer updates as upstream evolves, and live Safari coverage must be verified. Tests check real extension execution order and response transformations, but do not establish that every live ad variant is blocked. The integration does not blanket-block `googlevideo.com`, which also carries normal videos.
 
 Other first-party/native ads, anti-adblock walls, unfamiliar banners and some shadow-DOM or fixed-position consent walls still need site-specific work. This is not a full replacement for subscription-based blocklists. Filters are bundled and do not auto-update. Test against your usual sites and expand the lists as needed.
 
+## Build from source
+
+**Requirements:** macOS, Safari 18.6 or newer, Node.js 20+ and the full **Xcode** app from the Mac App Store. Apple's Command Line Tools alone cannot package a Safari extension.
+
+```sh
+git clone https://github.com/ersarue/stil-safari.git
+cd stil-safari
+npm ci
+npm run safari
+```
+
+This builds the bundled rules/icons, then runs Apple's Safari Web Extension converter. It creates the native containing app and extension project under `build/safari` and opens Xcode. No hand-written Xcode project is needed.
+
+In Xcode:
+
+1. Select the **Stil macOS app** scheme and **My Mac**.
+2. In **Signing & Capabilities**, choose your development team for both the app and extension targets. Use a unique bundle identifier if Xcode asks for one.
+3. Run the app with **⌘R**.
+4. For local development, enable Safari's **Allow Unsigned Extensions** setting. Enable web-developer features in **Safari → Settings → Advanced**, then find the unsigned-extensions option under **Develop** (or **Develop → Developer Settings**, depending on Safari version). Safari may reset this after restarting.
+5. In **Safari → Settings → Extensions**, enable **Stil** and allow it on the websites you want to filter.
+6. Reload existing tabs and click the Stil toolbar icon.
+
+Safari requires the native app wrapper; selecting the `extension` directory directly in Safari does not install it. For a signed build, choose your development team for both targets in Xcode.
+
+To generate the project with identifiers you control, run `BUNDLE_ID=com.example.stil npm run safari` (the script normalizes the final component to `com.example.Stil`). The repository default is `io.github.ersarue.Stil`.
+
+### Xcode: embedded binary identifier error
+
+If Xcode reports “Embedded binary's bundle identifier is not prefixed with the parent app's bundle identifier”, check **Signing & Capabilities → Bundle Identifier** for both targets. The extension identifier must begin with the app identifier followed by a dot, with identical capitalization. For example:
+
+- **Stil:** `io.github.ersarue.Stil`
+- **Stil Extension:** `io.github.ersarue.Stil.Extension`
+
+Keep the `extensionBundleIdentifier` constant in the generated app's `Stil/ViewController.swift` equal to the extension identifier as well. Apply identifier changes to both Debug and Release configurations. Then choose **Product → Clean Build Folder** (⇧⌘K) and run again (⌘R).
+
 ## Development
 
 ```sh
-npm install
+npm ci
 npx playwright install chromium
 npm test
 ```
@@ -71,8 +104,8 @@ npm test
 Tests load the actual unpacked extension in Chromium to exercise declarative network blocking, exceptions, popup controls, persistence and content-script behavior. The YouTube checks verify document-start filtering before the first page script, Fetch/XHR response filtering, Shorts entries, both execution worlds and saved pause settings. Real-media fixtures also check fallback skipping, audio restoration and content-video protection. These tests do **not** replace testing the packaged extension in Safari.
 
 ```sh
-npm run build     # Regenerate network rules and PNG icons; validate resources
-npm run safari    # Create/open the native Xcode project (first time)
+npm run build          # Regenerate network rules and PNG icons; validate resources
+npm run safari         # Create/open the native Xcode project (first time)
 npm run update:youtube # Reproduce the pinned, checksummed YouTube filter bundle
 ```
 
@@ -88,7 +121,7 @@ extension/
   content.js/css      Reversible banner/ad hiding and scroll restoration
   youtube.js          YouTube player ad skipping and mute restoration
   vendor/youtube/     Pinned YouTube scriptlets, network rules, source and license
-  selectors.js        Curated cosmetic and consent-vendor selectors
+  selectors.js        Curated cosmetic and consent-banner selectors
   popup/              Accessible, light/dark toolbar popup
   rules/ads.json      Generated declarative network rules
   icons/              Generated PNG icons
@@ -118,21 +151,12 @@ To adopt a newer upstream release, update the release tag and verified SHA-256 i
 
 ## Contributing
 
-Bug reports, filter suggestions and pull requests are welcome. Read
-[CONTRIBUTING.md](CONTRIBUTING.md) for setup and filter guidelines, and report
-security issues privately per [SECURITY.md](SECURITY.md). Release notes are in
-[CHANGELOG.md](CHANGELOG.md).
+Bug reports, filter suggestions and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup and filter guidelines, and report security issues privately per [SECURITY.md](SECURITY.md). Release notes are in [CHANGELOG.md](CHANGELOG.md). Maintainers preparing a signed download should follow [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Distribution
 
-Stil is developed as an open-source Safari Web Extension. Signing with an Apple
-Developer Program team removes the unsigned-extension step. If you distribute a
-modified build, keep the GPL notices and make the corresponding source
-available; see [THIRD_PARTY.md](THIRD_PARTY.md).
+Stil is developed as an open-source Safari Web Extension. Official downloads are universal macOS builds signed with a Developer ID certificate and notarized by Apple, so they open without Gatekeeper or Safari developer settings. If you distribute a modified build, keep the GPL notices and make the corresponding source available; see [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ## License
 
-Stil is licensed under **GPL-3.0-or-later** and includes third-party
-GPL-3.0-or-later filter code. See [LICENSE](LICENSE) and
-[THIRD_PARTY.md](THIRD_PARTY.md) for attribution, source provenance and
-distribution information.
+Stil is licensed under **GPL-3.0-or-later** and includes third-party GPL-3.0-or-later filter code. See [LICENSE](LICENSE) and [THIRD_PARTY.md](THIRD_PARTY.md) for attribution, source provenance and distribution information.
