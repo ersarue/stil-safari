@@ -1,0 +1,62 @@
+name: Bug report
+description: Report something that Stil breaks, misses or gets wrong
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include browsing history, cookies, account credentials or other
+        personal data. For security issues, use the private process in
+        SECURITY.md instead.
+  - type: input
+    id: version
+    attributes:
+      label: Stil version
+      description: Shown at the bottom of the toolbar popup.
+      placeholder: "0.3.0"
+    validations:
+      required: true
+  - type: input
+    id: safari
+    attributes:
+      label: Safari and macOS versions
+      placeholder: "Safari 18.6, macOS 15.6"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Ads still visible or requests not blocked
+        - Cookie banner not hidden or page broken
+        - YouTube playback or ads
+        - Popup, settings or pause list
+        - Installation or building from source
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Use example URLs where possible.
+      placeholder: |
+        1. Open https://example.com/article
+        2. Scroll to ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Additional context
+      description: Popup status, Web Inspector console errors, whether the site is paused, and whether the tab was reloaded after enabling.
+    validations:
+      required: false

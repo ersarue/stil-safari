@@ -1,0 +1,35 @@
+[
+  {
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "resourceTypes": [
+        "xmlhttprequest"
+      ],
+      "urlFilter": "||googlevideo.com/initplayback?source=youtube&*c=tvhtml5&*oad=",
+      "domains": [
+        "youtube.com"
+      ]
+    },
+    "id": 1,
+    "priority": 10
+  },
+  {
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "domainType": "thirdParty",
+      "resourceTypes": [
+        "media"
+      ],
+      "urlFilter": "_ad_",
+      "domains": [
+        "youtube.com"
+      ]
+    },
+    "id": 2,
+    "priority": 10
+  }
+]

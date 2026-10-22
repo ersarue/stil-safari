@@ -1,0 +1,12 @@
+node_modules/
+build/
+test-results/
+playwright-report/
+.DS_Store
+*.xcuserstate
+xcuserdata/
+*.xcresult
+DerivedData/
+.env
+.env.*
+extension/_metadata/

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stil — Quiet Browsing</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="../shared.js" defer></script>
+  <script src="popup.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-icon" aria-hidden="true">s<span>·</span></span><span>stil<span class="brand-period">.</span></span></div>
+    <span class="eyebrow">A LITTLE LESS NOISE</span>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="status-title">
+      <div class="status-label"><span class="status-dot"></span><span id="status-label">CONNECTING</span></div>
+      <div class="hero-main">
+        <div><h1 id="status-title">A quieter internet.</h1><p id="status-description">Your space to browse, uninterrupted.</p></div>
+        <button id="enabled" class="power" type="button" role="switch" aria-checked="true" aria-label="Enable Stil" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9M7.1 5.7a8 8 0 1 0 9.8 0"/></svg>
+        </button>
+      </div>
+      <div class="hero-footer"><span aria-hidden="true">✧</span> Less clutter. More of what matters.</div>
+    </section>
+
+    <section class="settings" aria-labelledby="settings-title">
+      <h2 id="settings-title">YOUR EVERYDAY ESSENTIALS</h2>
+      <div class="setting">
+        <span class="setting-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 8 3v5c0 5-8 10-8 10S4 16 4 11V6l8-3Z"/><path d="m8.5 11.5 2.5 2.5 4.5-5"/></svg></span>
+        <div class="setting-copy"><label for="blockAds">Block ads</label><p>Ad blocking + YouTube filters.</p></div>
+        <button id="blockAds" class="toggle" type="button" role="switch" aria-checked="true" aria-label="Block ads" disabled><span></span></button>
+      </div>
+      <div class="setting">
+        <span class="setting-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 13A8.5 8.5 0 1 1 11 3.5a5 5 0 0 0 9.5 9.5Z"/><path d="M8 9h.01M8 15h.01M13 16h.01M5.5 12h.01"/></svg></span>
+        <div class="setting-copy"><label for="hideCookies">Hide cookie banners</label><p>Skip the pop-up, keep your focus.</p></div>
+        <button id="hideCookies" class="toggle" type="button" role="switch" aria-checked="true" aria-label="Hide cookie banners" disabled><span></span></button>
+      </div>
+      <p class="consent-note">Hides notices without clicking accept or reject. Your existing cookie choices stay as they are.</p>
+    </section>
+
+    <section class="site-card" aria-labelledby="site-title">
+      <div class="site-heading"><span class="site-icon" aria-hidden="true">◎</span><div><h2 id="site-title">THIS WEBSITE</h2><p id="hostname">Finding your current tab…</p></div><span id="site-status" class="site-status">—</span></div>
+      <button id="pause-site" class="site-button" type="button" disabled>Pause on this website <span aria-hidden="true">↗</span></button>
+      <p class="site-note" id="site-note">Site controls apply to this exact hostname.</p>
+      <p class="site-note" id="youtube-status" role="status" hidden></p>
+    </section>
+
+    <div id="reload-notice" class="reload-notice" hidden><p>Saved. Reload this website to apply network changes.</p><button id="reload" type="button">Reload tab <span aria-hidden="true">↻</span></button></div>
+    <p id="error" class="error" role="alert" hidden></p>
+    <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+  </main>
+  <footer><span><span class="privacy-dot" aria-hidden="true"></span> On-device. No accounts. No tracking.</span><span>v0.3</span></footer>
+</body>
+</html>

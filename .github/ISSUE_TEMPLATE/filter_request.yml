@@ -1,0 +1,39 @@
+name: Filter request
+description: Suggest an ad hostname or cookie-banner selector
+labels: [filters]
+body:
+  - type: input
+    id: site
+    attributes:
+      label: Example site
+      description: A public URL that demonstrates the problem. Do not include private or account-specific URLs.
+      placeholder: "https://example.com/article"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Request type
+      options:
+        - Third-party ad or measurement hostname
+        - Cookie banner or consent overlay
+        - Sponsored page placement
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What is visible or loading?
+      description: For network requests, include the exact hostname and what it serves. For banners, describe the vendor or include a screenshot.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety checks
+      options:
+        - label: This is a dedicated ad/measurement host, not a shared CDN, payment or consent library.
+          required: false
+        - label: The request is a third-party subresource, not a top-level navigation.
+          required: false

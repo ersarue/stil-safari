@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Stil browser test</title>
+  <link rel="stylesheet" href="/fixture.css">
+  <script src="/fixture.js" defer></script>
+  <script src="http://pagead2.googlesyndication.com:PORT/ad.js" defer></script>
+</head>
+<body style="overflow-y: hidden">
+  <main>
+    <h1>A useful, ordinary website</h1>
+    <article id="cookie-article"><h2>How cookies work</h2><p>This article and our <a href="/privacy">cookie policy</a> should stay visible.</p></article>
+    <div class="advertisement-container">An advertisement</div>
+    <button id="ordinary-button">A normal control</button>
+    <div role="dialog" aria-label="Sign in" aria-modal="true" id="login-dialog" hidden>Sign in to your account</div>
+    <iframe title="Embedded content" src="http://embed.stil.test:PORT/frame"></iframe>
+  </main>
+  <div id="onetrust-banner-sdk" role="dialog" aria-label="Cookie consent">
+    <p>We use cookies to personalize this website.</p>
+    <button id="accept-cookies">Accept all</button>
+    <button id="reject-cookies">Reject all</button>
+  </div>
+  <div class="onetrust-pc-dark-filter"></div>
+</body>
+</html>

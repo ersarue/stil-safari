@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    // The page consumes bootstrap data immediately, before any async extension
+    // messaging could install a late hook. This tests document_start injection.
+    window.ytInitialPlayerResponse = {
+      videoDetails: { videoId: 'stil-content', title: 'Ordinary content' },
+      streamingData: { formats: [{ url: '/stil-test/media/content.wav' }] },
+      adPlacements: [{ adPlacementRenderer: { test: true } }],
+      adSlots: [{ adSlotRenderer: { test: true } }],
+      playerAds: [{ test: true }]
+    };
+    window.initialAdSnapshot = {
+      placements: Boolean(ytInitialPlayerResponse.adPlacements),
+      slots: Boolean(ytInitialPlayerResponse.adSlots),
+      playerAds: Boolean(ytInitialPlayerResponse.playerAds),
+      videoId: ytInitialPlayerResponse.videoDetails.videoId,
+      contentURL: ytInitialPlayerResponse.streamingData.formats[0].url
+    };
+  </script>
+  <title>YouTube player test fixture</title>
+  <style>
+    ytd-ad-slot-renderer { display: block; }
+    [hidden] { display: none !important; }
+    video { width: 320px; height: 180px; }
+  </style>
+</head>
+<body>
+  <div id="masthead-ad">Masthead advertisement</div>
+  <ytd-ad-slot-renderer>Sponsored feed item</ytd-ad-slot-renderer>
+  <div id="movie_player" class="html5-video-player">
+    <video class="html5-main-video" preload="auto" controls></video>
+    <button class="ytp-skip-ad-button" hidden>Skip ad</button>
+    <button class="ytp-ad-button" id="advertiser">Visit advertiser</button>
+  </div>
+  <p id="description">An ordinary video description.</p>
+  <script>
+    const player = document.getElementById('movie_player');
+    const video = player.querySelector('video');
+    const skip = player.querySelector('.ytp-skip-ad-button');
+    window.playerState = { skips: 0, endedAds: 0, advertiserClicks: 0 };
+
+    window.loadVideo = source => new Promise((resolve, reject) => {
+      video.addEventListener('loadeddata', resolve, { once: true });
+      video.addEventListener('error', reject, { once: true });
+      video.src = '/stil-test/media/' + source + '.wav';
+    });
+    window.finishAd = async () => {
+      player.classList.remove('ad-showing', 'ad-interrupting');
+      skip.hidden = true;
+      video.pause();
+      await loadVideo('content');
+      video.currentTime = 7;
+    };
+    window.startAd = async ({ skippable = false, play = true } = {}) => {
+      await loadVideo('ad');
+      video.currentTime = 0;
+      skip.hidden = !skippable;
+      player.classList.add('ad-showing', 'ad-interrupting');
+      if (play) await video.play().catch(() => {});
+    };
+    skip.addEventListener('click', () => {
+      playerState.skips++;
+      finishAd();
+    });
+    document.getElementById('advertiser').addEventListener('click', () => {
+      playerState.advertiserClicks++;
+    });
+    video.addEventListener('ended', () => {
+      if (!player.classList.contains('ad-showing')) return;
+      playerState.endedAds++;
+      finishAd();
+    });
+    window.ready = loadVideo('content').then(() => {
+      // Resource selection resets playbackRate to defaultPlaybackRate.
+      video.defaultPlaybackRate = 1.5;
+      video.playbackRate = 1.5;
+      video.currentTime = 7;
+    });
+  </script>
+</body>
+</html>

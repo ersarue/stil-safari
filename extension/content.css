@@ -1,0 +1,5 @@
+/* Only elements identified by the content script are affected. Loading this as
+   a content stylesheet also works on pages with a restrictive style-src CSP. */
+[data-stil-cookie], [data-stil-ad] {
+  display: none !important;
+}

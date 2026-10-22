@@ -1,0 +1,36 @@
+{
+  "release": "2026.1021.1354",
+  "url": "https://github.com/uBlockOrigin/uBOL-home/releases/download/2026.1021.1354/uBOLite_2026.1021.1354.safari.zip",
+  "sha256": "6c80d19c128cd3f6b5d1ff2ef151fa0ff31565da3c5ef6841443381702b92838",
+  "license": "GPL-3.0-or-later",
+  "hosts": [
+    "youtube.com",
+    "www.youtube.com",
+    "m.youtube.com",
+    "music.youtube.com",
+    "tv.youtube.com",
+    "youtube-nocookie.com",
+    "www.youtube-nocookie.com"
+  ],
+  "worlds": {
+    "main": {
+      "youtube.com": 1,
+      "www.youtube.com": 25,
+      "m.youtube.com": 8,
+      "music.youtube.com": 7,
+      "tv.youtube.com": 7,
+      "youtube-nocookie.com": 7,
+      "www.youtube-nocookie.com": 7
+    },
+    "isolated": {
+      "youtube.com": 0,
+      "www.youtube.com": 2,
+      "m.youtube.com": 0,
+      "music.youtube.com": 0,
+      "tv.youtube.com": 0,
+      "youtube-nocookie.com": 0,
+      "www.youtube-nocookie.com": 0
+    }
+  },
+  "networkRules": 2
+}

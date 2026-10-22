@@ -1,0 +1,15 @@
+{
+  "name": "stil-safari",
+  "version": "0.3.0",
+  "private": true,
+  "description": "A local-first Safari ad and cookie-banner blocker.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "update:youtube": "node scripts/update-youtube.mjs",
+    "test": "npm run build && playwright test",
+    "safari": "npm run build && bash scripts/create-safari-project.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}
